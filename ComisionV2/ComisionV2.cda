@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDADescriptor>
+   <DataSources>
+      <Connection id="query_partida" type="sql.jndi">
+         <Jndi>PSQL</Jndi>
+      </Connection>
+      <Connection id="query_numero" type="sql.jndi">
+         <Jndi>PSQL</Jndi>
+      </Connection>
+      <Connection id="query_capitulo" type="sql.jndi">
+         <Jndi>PSQL</Jndi>
+      </Connection>
+      <Connection id="query_partida_new" type="sql.jndi">
+         <Jndi>PSQL</Jndi>
+      </Connection>
+   </DataSources>
+   <DataAccess access="public" connection="query_partida" id="query_partida" type="sql">
+      <Name>query_partida</Name>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="Comision" name="Comision" type="String"/>
+      </Parameters>
+      <Query><![CDATA[select gastos.partida,"2014","2015","2016","2017" from gastos 
+inner join partida on partida.partida = gastos.partida
+where subcomision=${Comision}
+group by gastos.partida
+order by gastos.partida]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="query_numero" id="query_numero" type="sql">
+      <Name>query_numero</Name>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters/>
+      <Query><![CDATA[select subcomision from partida group by subcomision]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="query_capitulo" id="query_capitulo" type="sql">
+      <Name>query_capitulo</Name>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="Partida" name="Partida" type="String"/>
+      </Parameters>
+      <Query><![CDATA[select (gastos_capitulo.partida||'-'||substring(gastos_capitulo.capitulo,3,2)||' '||cabecera.nombre) as capitulo, "2014","2015","2016","2017"
+from cabecera
+inner join partida on partida.partida=cabecera.partida
+inner join gastos_capitulo on gastos_capitulo.partida = partida.partida
+where substring(codinstit,1,4) = gastos_capitulo.capitulo and substring(codinstit,5,2)='00' and partida.partida=${Partida}
+order by gastos_capitulo.capitulo;]]></Query>
+   </DataAccess>
+   <DataAccess access="public" connection="query_partida_new" id="query_partida_new"
+               type="sql">
+      <Name>query_partida_new</Name>
+      <Cache duration="3600" enabled="true"/>
+      <Columns/>
+      <Parameters>
+         <Parameter default="Comision" name="Comision" type="String"/>
+      </Parameters>
+      <Query><![CDATA[select (gastos.partida||' '||partida.nombre) as Partida,"2014","2015","2016","2017" from gastos 
+inner join partida on partida.partida = gastos.partida
+where subcomision=${Comision}
+group by gastos.partida, partida.nombre
+order by gastos.partida]]></Query>
+   </DataAccess>
+</CDADescriptor>
